@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/sveltejs/branding/master/svelte-logo.png" alt="Svelte Logo" width="120" />
 </p>
 
-<h1 align="center">Awesome Svelte App</h1>
+<h1 align="center">Svelte Application learning</h1>
 
 <p align="center">
   <a href="https://github.com/your-org/your-repo/actions">
