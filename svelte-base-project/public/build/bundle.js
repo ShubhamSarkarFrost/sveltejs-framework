@@ -35,12 +35,6 @@ var app = (function () {
     function is_empty(obj) {
         return Object.keys(obj).length === 0;
     }
-
-    const globals = (typeof window !== 'undefined'
-        ? window
-        : typeof globalThis !== 'undefined'
-            ? globalThis
-            : global);
     function append(target, node) {
         target.appendChild(node);
     }
@@ -50,6 +44,12 @@ var app = (function () {
     function detach(node) {
         if (node.parentNode) {
             node.parentNode.removeChild(node);
+        }
+    }
+    function destroy_each(iterations, detaching) {
+        for (let i = 0; i < iterations.length; i += 1) {
+            if (iterations[i])
+                iterations[i].d(detaching);
         }
     }
     function element(name) {
@@ -76,6 +76,9 @@ var app = (function () {
     }
     function set_input_value(input, value) {
         input.value = value == null ? '' : value;
+    }
+    function toggle_class(element, name, toggle) {
+        element.classList[toggle ? 'add' : 'remove'](name);
     }
     function custom_event(type, detail, { bubbles = false, cancelable = false } = {}) {
         const e = document.createEvent('CustomEvent');
@@ -195,6 +198,19 @@ var app = (function () {
     }
     const outroing = new Set();
     let outros;
+    function group_outros() {
+        outros = {
+            r: 0,
+            c: [],
+            p: outros // parent group
+        };
+    }
+    function check_outros() {
+        if (!outros.r) {
+            run_all(outros.c);
+        }
+        outros = outros.p;
+    }
     function transition_in(block, local) {
         if (block && block.i) {
             outroing.delete(block);
@@ -400,6 +416,15 @@ var app = (function () {
         dispatch_dev('SvelteDOMSetData', { node: text, data });
         text.data = data;
     }
+    function validate_each_argument(arg) {
+        if (typeof arg !== 'string' && !(arg && typeof arg === 'object' && 'length' in arg)) {
+            let msg = '{#each} only iterates over array-like objects.';
+            if (typeof Symbol === 'function' && arg && Symbol.iterator in arg) {
+                msg += ' You can use a spread to convert this iterable into an array.';
+            }
+            throw new Error(msg);
+        }
+    }
     function validate_slots(name, slot, keys) {
         for (const slot_key of Object.keys(slot)) {
             if (!~keys.indexOf(slot_key)) {
@@ -431,174 +456,104 @@ var app = (function () {
 
     const file$1 = "src\\ContactCard.svelte";
 
-    // (12:4) {:else}
-    function create_else_block(ctx) {
-    	let div;
-    	let t_value = (/*userName*/ ctx[0]?.[0] ?? '?') + "";
-    	let t;
-
-    	const block = {
-    		c: function create() {
-    			div = element("div");
-    			t = text(t_value);
-    			attr_dev(div, "class", "placeholder svelte-1rqlwvz");
-    			add_location(div, file$1, 12, 6, 298);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, div, anchor);
-    			append_dev(div, t);
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty & /*userName*/ 1 && t_value !== (t_value = (/*userName*/ ctx[0]?.[0] ?? '?') + "")) set_data_dev(t, t_value);
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_else_block.name,
-    		type: "else",
-    		source: "(12:4) {:else}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (10:4) {#if imageSrc}
-    function create_if_block$1(ctx) {
+    function create_fragment$1(ctx) {
+    	let div3;
+    	let header;
+    	let div0;
     	let img;
     	let img_src_value;
-    	let img_alt_value;
-
-    	const block = {
-    		c: function create() {
-    			img = element("img");
-    			if (!src_url_equal(img.src, img_src_value = /*imageSrc*/ ctx[3])) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "alt", img_alt_value = `Avatar of ${/*userName*/ ctx[0]}`);
-    			attr_dev(img, "class", "svelte-1rqlwvz");
-    			add_location(img, file$1, 10, 6, 225);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, img, anchor);
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty & /*imageSrc*/ 8 && !src_url_equal(img.src, img_src_value = /*imageSrc*/ ctx[3])) {
-    				attr_dev(img, "src", img_src_value);
-    			}
-
-    			if (dirty & /*userName*/ 1 && img_alt_value !== (img_alt_value = `Avatar of ${/*userName*/ ctx[0]}`)) {
-    				attr_dev(img, "alt", img_alt_value);
-    			}
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(img);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block$1.name,
-    		type: "if",
-    		source: "(10:4) {#if imageSrc}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    function create_fragment$1(ctx) {
-    	let article;
-    	let div0;
     	let t0;
     	let div1;
-    	let h2;
+    	let h1;
     	let t1;
     	let t2;
-    	let p0;
+    	let h2;
     	let t3;
     	let t4;
-    	let p1;
+    	let div2;
+    	let p;
     	let t5;
-
-    	function select_block_type(ctx, dirty) {
-    		if (/*imageSrc*/ ctx[3]) return create_if_block$1;
-    		return create_else_block;
-    	}
-
-    	let current_block_type = select_block_type(ctx);
-    	let if_block = current_block_type(ctx);
 
     	const block = {
     		c: function create() {
-    			article = element("article");
+    			div3 = element("div");
+    			header = element("header");
     			div0 = element("div");
-    			if_block.c();
+    			img = element("img");
     			t0 = space();
     			div1 = element("div");
-    			h2 = element("h2");
+    			h1 = element("h1");
     			t1 = text(/*userName*/ ctx[0]);
     			t2 = space();
-    			p0 = element("p");
-    			t3 = text(/*title*/ ctx[1]);
+    			h2 = element("h2");
+    			t3 = text(/*jobTitle*/ ctx[1]);
     			t4 = space();
-    			p1 = element("p");
+    			div2 = element("div");
+    			p = element("p");
     			t5 = text(/*description*/ ctx[2]);
-    			attr_dev(div0, "class", "avatar svelte-1rqlwvz");
-    			add_location(div0, file$1, 8, 2, 177);
-    			attr_dev(h2, "class", "svelte-1rqlwvz");
-    			add_location(h2, file$1, 16, 4, 400);
-    			attr_dev(p0, "class", "title svelte-1rqlwvz");
-    			add_location(p0, file$1, 17, 4, 425);
-    			attr_dev(p1, "class", "description svelte-1rqlwvz");
-    			add_location(p1, file$1, 18, 4, 459);
-    			attr_dev(div1, "class", "info svelte-1rqlwvz");
-    			add_location(div1, file$1, 15, 2, 376);
-    			attr_dev(article, "class", "card svelte-1rqlwvz");
-    			add_location(article, file$1, 7, 0, 151);
+    			if (!src_url_equal(img.src, img_src_value = /*userImage*/ ctx[3])) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", /*userName*/ ctx[0]);
+    			attr_dev(img, "class", "svelte-136bq57");
+    			add_location(img, file$1, 10, 6, 231);
+    			attr_dev(div0, "class", "thumb svelte-136bq57");
+    			toggle_class(div0, "thumb-placeholder", !/*userImage*/ ctx[3]);
+    			add_location(div0, file$1, 9, 4, 167);
+    			attr_dev(h1, "class", "svelte-136bq57");
+    			add_location(h1, file$1, 13, 6, 318);
+    			attr_dev(h2, "class", "svelte-136bq57");
+    			add_location(h2, file$1, 14, 6, 345);
+    			attr_dev(div1, "class", "user-data svelte-136bq57");
+    			add_location(div1, file$1, 12, 4, 287);
+    			attr_dev(header, "class", "svelte-136bq57");
+    			add_location(header, file$1, 8, 2, 153);
+    			attr_dev(p, "class", "svelte-136bq57");
+    			add_location(p, file$1, 18, 4, 424);
+    			attr_dev(div2, "class", "description svelte-136bq57");
+    			add_location(div2, file$1, 17, 2, 393);
+    			attr_dev(div3, "class", "contact-card svelte-136bq57");
+    			add_location(div3, file$1, 7, 0, 123);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, article, anchor);
-    			append_dev(article, div0);
-    			if_block.m(div0, null);
-    			append_dev(article, t0);
-    			append_dev(article, div1);
-    			append_dev(div1, h2);
-    			append_dev(h2, t1);
+    			insert_dev(target, div3, anchor);
+    			append_dev(div3, header);
+    			append_dev(header, div0);
+    			append_dev(div0, img);
+    			append_dev(header, t0);
+    			append_dev(header, div1);
+    			append_dev(div1, h1);
+    			append_dev(h1, t1);
     			append_dev(div1, t2);
-    			append_dev(div1, p0);
-    			append_dev(p0, t3);
-    			append_dev(div1, t4);
-    			append_dev(div1, p1);
-    			append_dev(p1, t5);
+    			append_dev(div1, h2);
+    			append_dev(h2, t3);
+    			append_dev(div3, t4);
+    			append_dev(div3, div2);
+    			append_dev(div2, p);
+    			append_dev(p, t5);
     		},
     		p: function update(ctx, [dirty]) {
-    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
-    				if_block.p(ctx, dirty);
-    			} else {
-    				if_block.d(1);
-    				if_block = current_block_type(ctx);
+    			if (dirty & /*userImage*/ 8 && !src_url_equal(img.src, img_src_value = /*userImage*/ ctx[3])) {
+    				attr_dev(img, "src", img_src_value);
+    			}
 
-    				if (if_block) {
-    					if_block.c();
-    					if_block.m(div0, null);
-    				}
+    			if (dirty & /*userName*/ 1) {
+    				attr_dev(img, "alt", /*userName*/ ctx[0]);
+    			}
+
+    			if (dirty & /*userImage*/ 8) {
+    				toggle_class(div0, "thumb-placeholder", !/*userImage*/ ctx[3]);
     			}
 
     			if (dirty & /*userName*/ 1) set_data_dev(t1, /*userName*/ ctx[0]);
-    			if (dirty & /*title*/ 2) set_data_dev(t3, /*title*/ ctx[1]);
+    			if (dirty & /*jobTitle*/ 2) set_data_dev(t3, /*jobTitle*/ ctx[1]);
     			if (dirty & /*description*/ 4) set_data_dev(t5, /*description*/ ctx[2]);
     		},
     		i: noop,
     		o: noop,
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(article);
-    			if_block.d();
+    			if (detaching) detach_dev(div3);
     		}
     	};
 
@@ -617,25 +572,29 @@ var app = (function () {
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('ContactCard', slots, []);
     	let { userName } = $$props;
-    	let { title } = $$props;
+    	let { jobTitle } = $$props;
     	let { description } = $$props;
-    	let { imageSrc = '' } = $$props;
+    	let { userImage } = $$props;
 
     	$$self.$$.on_mount.push(function () {
     		if (userName === undefined && !('userName' in $$props || $$self.$$.bound[$$self.$$.props['userName']])) {
     			console.warn("<ContactCard> was created without expected prop 'userName'");
     		}
 
-    		if (title === undefined && !('title' in $$props || $$self.$$.bound[$$self.$$.props['title']])) {
-    			console.warn("<ContactCard> was created without expected prop 'title'");
+    		if (jobTitle === undefined && !('jobTitle' in $$props || $$self.$$.bound[$$self.$$.props['jobTitle']])) {
+    			console.warn("<ContactCard> was created without expected prop 'jobTitle'");
     		}
 
     		if (description === undefined && !('description' in $$props || $$self.$$.bound[$$self.$$.props['description']])) {
     			console.warn("<ContactCard> was created without expected prop 'description'");
     		}
+
+    		if (userImage === undefined && !('userImage' in $$props || $$self.$$.bound[$$self.$$.props['userImage']])) {
+    			console.warn("<ContactCard> was created without expected prop 'userImage'");
+    		}
     	});
 
-    	const writable_props = ['userName', 'title', 'description', 'imageSrc'];
+    	const writable_props = ['userName', 'jobTitle', 'description', 'userImage'];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<ContactCard> was created with unknown prop '${key}'`);
@@ -643,25 +602,30 @@ var app = (function () {
 
     	$$self.$$set = $$props => {
     		if ('userName' in $$props) $$invalidate(0, userName = $$props.userName);
-    		if ('title' in $$props) $$invalidate(1, title = $$props.title);
+    		if ('jobTitle' in $$props) $$invalidate(1, jobTitle = $$props.jobTitle);
     		if ('description' in $$props) $$invalidate(2, description = $$props.description);
-    		if ('imageSrc' in $$props) $$invalidate(3, imageSrc = $$props.imageSrc);
+    		if ('userImage' in $$props) $$invalidate(3, userImage = $$props.userImage);
     	};
 
-    	$$self.$capture_state = () => ({ userName, title, description, imageSrc });
+    	$$self.$capture_state = () => ({
+    		userName,
+    		jobTitle,
+    		description,
+    		userImage
+    	});
 
     	$$self.$inject_state = $$props => {
     		if ('userName' in $$props) $$invalidate(0, userName = $$props.userName);
-    		if ('title' in $$props) $$invalidate(1, title = $$props.title);
+    		if ('jobTitle' in $$props) $$invalidate(1, jobTitle = $$props.jobTitle);
     		if ('description' in $$props) $$invalidate(2, description = $$props.description);
-    		if ('imageSrc' in $$props) $$invalidate(3, imageSrc = $$props.imageSrc);
+    		if ('userImage' in $$props) $$invalidate(3, userImage = $$props.userImage);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [userName, title, description, imageSrc];
+    	return [userName, jobTitle, description, userImage];
     }
 
     class ContactCard extends SvelteComponentDev {
@@ -670,9 +634,9 @@ var app = (function () {
 
     		init(this, options, instance$1, create_fragment$1, safe_not_equal, {
     			userName: 0,
-    			title: 1,
+    			jobTitle: 1,
     			description: 2,
-    			imageSrc: 3
+    			userImage: 3
     		});
 
     		dispatch_dev("SvelteRegisterComponent", {
@@ -691,11 +655,11 @@ var app = (function () {
     		throw new Error("<ContactCard>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	get title() {
+    	get jobTitle() {
     		throw new Error("<ContactCard>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	set title(value) {
+    	set jobTitle(value) {
     		throw new Error("<ContactCard>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
@@ -707,53 +671,70 @@ var app = (function () {
     		throw new Error("<ContactCard>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	get imageSrc() {
+    	get userImage() {
     		throw new Error("<ContactCard>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	set imageSrc(value) {
+    	set userImage(value) {
     		throw new Error("<ContactCard>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
 
     /* src\App.svelte generated by Svelte v3.59.2 */
-
-    const { console: console_1 } = globals;
     const file = "src\\App.svelte";
 
-    // (65:4) {#if imageSrc}
-    function create_if_block(ctx) {
-    	let div;
-    	let img;
-    	let img_src_value;
-    	let img_alt_value;
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[13] = list[i];
+    	return child_ctx;
+    }
+
+    // (94:41) 
+    function create_if_block_1(ctx) {
+    	let p;
 
     	const block = {
     		c: function create() {
-    			div = element("div");
-    			img = element("img");
-    			if (!src_url_equal(img.src, img_src_value = /*imageSrc*/ ctx[4])) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "alt", img_alt_value = `Photo of ${/*name*/ ctx[0]}`);
-    			attr_dev(img, "class", "svelte-1b78b37");
-    			add_location(img, file, 66, 8, 1480);
-    			attr_dev(div, "class", "preview svelte-1b78b37");
-    			add_location(div, file, 65, 6, 1449);
+    			p = element("p");
+    			p.textContent = "Please enter some data and click Add Contact Card";
+    			attr_dev(p, "class", "instruction svelte-lpjeys");
+    			add_location(p, file, 94, 4, 2359);
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, div, anchor);
-    			append_dev(div, img);
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty & /*imageSrc*/ 16 && !src_url_equal(img.src, img_src_value = /*imageSrc*/ ctx[4])) {
-    				attr_dev(img, "src", img_src_value);
-    			}
-
-    			if (dirty & /*name*/ 1 && img_alt_value !== (img_alt_value = `Photo of ${/*name*/ ctx[0]}`)) {
-    				attr_dev(img, "alt", img_alt_value);
-    			}
+    			insert_dev(target, p, anchor);
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div);
+    			if (detaching) detach_dev(p);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1.name,
+    		type: "if",
+    		source: "(94:41) ",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (92:2) {#if formState === 'invalid'}
+    function create_if_block(ctx) {
+    	let p;
+
+    	const block = {
+    		c: function create() {
+    			p = element("p");
+    			p.textContent = "Please fill out all fields.";
+    			attr_dev(p, "class", "error svelte-lpjeys");
+    			add_location(p, file, 92, 4, 2262);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, p, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(p);
     		}
     	};
 
@@ -761,211 +742,42 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(65:4) {#if imageSrc}",
+    		source: "(92:2) {#if formState === 'invalid'}",
     		ctx
     	});
 
     	return block;
     }
 
-    function create_fragment(ctx) {
-    	let div2;
-    	let h1;
-    	let t0;
-    	let t1;
-    	let t2;
-    	let t3;
-    	let t4;
-    	let t5;
-    	let div0;
-    	let button;
-    	let t7;
-    	let div1;
-    	let label0;
-    	let t8;
-    	let input0;
-    	let t9;
-    	let label1;
-    	let t10;
-    	let input1;
-    	let t11;
-    	let label2;
-    	let t12;
-    	let textarea;
-    	let t13;
-    	let label3;
-    	let t14;
-    	let input2;
-    	let t15;
-    	let t16;
+    // (99:4) {#each createdContacts as contact}
+    function create_each_block(ctx) {
     	let contactcard;
     	let current;
-    	let mounted;
-    	let dispose;
-    	let if_block = /*imageSrc*/ ctx[4] && create_if_block(ctx);
 
     	contactcard = new ContactCard({
     			props: {
-    				userName: /*uppercaseName*/ ctx[5],
-    				title: /*title*/ ctx[1],
-    				description: /*description*/ ctx[2],
-    				imageSrc: /*imageSrc*/ ctx[4]
+    				userName: /*contact*/ ctx[13].name,
+    				jobTitle: /*contact*/ ctx[13].title,
+    				userImage: /*contact*/ ctx[13].image,
+    				description: /*contact*/ ctx[13].description
     			},
     			$$inline: true
     		});
 
     	const block = {
     		c: function create() {
-    			div2 = element("div");
-    			h1 = element("h1");
-    			t0 = text("Hello ");
-    			t1 = text(/*uppercaseName*/ ctx[5]);
-    			t2 = text(", my age is ");
-    			t3 = text(/*age*/ ctx[3]);
-    			t4 = text("!");
-    			t5 = space();
-    			div0 = element("div");
-    			button = element("button");
-    			button.textContent = "Change Age";
-    			t7 = space();
-    			div1 = element("div");
-    			label0 = element("label");
-    			t8 = text("Name\r\n      ");
-    			input0 = element("input");
-    			t9 = space();
-    			label1 = element("label");
-    			t10 = text("Title\r\n      ");
-    			input1 = element("input");
-    			t11 = space();
-    			label2 = element("label");
-    			t12 = text("Short description\r\n      ");
-    			textarea = element("textarea");
-    			t13 = space();
-    			label3 = element("label");
-    			t14 = text("Photo\r\n      ");
-    			input2 = element("input");
-    			t15 = space();
-    			if (if_block) if_block.c();
-    			t16 = space();
     			create_component(contactcard.$$.fragment);
-    			attr_dev(h1, "class", "svelte-1b78b37");
-    			add_location(h1, file, 33, 2, 788);
-    			attr_dev(button, "class", "svelte-1b78b37");
-    			add_location(button, file, 36, 4, 870);
-    			attr_dev(div0, "class", "controls svelte-1b78b37");
-    			add_location(div0, file, 35, 2, 842);
-    			attr_dev(input0, "type", "text");
-    			attr_dev(input0, "class", "svelte-1b78b37");
-    			add_location(input0, file, 42, 6, 988);
-    			attr_dev(label0, "class", "svelte-1b78b37");
-    			add_location(label0, file, 40, 4, 961);
-    			attr_dev(input1, "type", "text");
-    			attr_dev(input1, "class", "svelte-1b78b37");
-    			add_location(input1, file, 47, 6, 1077);
-    			attr_dev(label1, "class", "svelte-1b78b37");
-    			add_location(label1, file, 45, 4, 1049);
-    			attr_dev(textarea, "rows", "3");
-    			attr_dev(textarea, "class", "svelte-1b78b37");
-    			add_location(textarea, file, 52, 6, 1179);
-    			attr_dev(label2, "class", "svelte-1b78b37");
-    			add_location(label2, file, 50, 4, 1139);
-    			attr_dev(input2, "type", "file");
-    			attr_dev(input2, "accept", "image/*");
-    			attr_dev(input2, "class", "svelte-1b78b37");
-    			add_location(input2, file, 57, 6, 1303);
-    			attr_dev(label3, "class", "file-label svelte-1b78b37");
-    			add_location(label3, file, 55, 4, 1256);
-    			attr_dev(div1, "class", "form svelte-1b78b37");
-    			add_location(div1, file, 39, 2, 937);
-    			attr_dev(div2, "class", "page svelte-1b78b37");
-    			add_location(div2, file, 32, 0, 766);
-    		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, div2, anchor);
-    			append_dev(div2, h1);
-    			append_dev(h1, t0);
-    			append_dev(h1, t1);
-    			append_dev(h1, t2);
-    			append_dev(h1, t3);
-    			append_dev(h1, t4);
-    			append_dev(div2, t5);
-    			append_dev(div2, div0);
-    			append_dev(div0, button);
-    			append_dev(div2, t7);
-    			append_dev(div2, div1);
-    			append_dev(div1, label0);
-    			append_dev(label0, t8);
-    			append_dev(label0, input0);
-    			set_input_value(input0, /*name*/ ctx[0]);
-    			append_dev(div1, t9);
-    			append_dev(div1, label1);
-    			append_dev(label1, t10);
-    			append_dev(label1, input1);
-    			set_input_value(input1, /*title*/ ctx[1]);
-    			append_dev(div1, t11);
-    			append_dev(div1, label2);
-    			append_dev(label2, t12);
-    			append_dev(label2, textarea);
-    			set_input_value(textarea, /*description*/ ctx[2]);
-    			append_dev(div1, t13);
-    			append_dev(div1, label3);
-    			append_dev(label3, t14);
-    			append_dev(label3, input2);
-    			append_dev(div1, t15);
-    			if (if_block) if_block.m(div1, null);
-    			append_dev(div2, t16);
-    			mount_component(contactcard, div2, null);
+    			mount_component(contactcard, target, anchor);
     			current = true;
-
-    			if (!mounted) {
-    				dispose = [
-    					listen_dev(button, "click", /*incrementAge*/ ctx[6], false, false, false, false),
-    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[8]),
-    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[9]),
-    					listen_dev(textarea, "input", /*textarea_input_handler*/ ctx[10]),
-    					listen_dev(input2, "change", /*handleImageChange*/ ctx[7], false, false, false, false)
-    				];
-
-    				mounted = true;
-    			}
     		},
-    		p: function update(ctx, [dirty]) {
-    			if (!current || dirty & /*uppercaseName*/ 32) set_data_dev(t1, /*uppercaseName*/ ctx[5]);
-    			if (!current || dirty & /*age*/ 8) set_data_dev(t3, /*age*/ ctx[3]);
-
-    			if (dirty & /*name*/ 1 && input0.value !== /*name*/ ctx[0]) {
-    				set_input_value(input0, /*name*/ ctx[0]);
-    			}
-
-    			if (dirty & /*title*/ 2 && input1.value !== /*title*/ ctx[1]) {
-    				set_input_value(input1, /*title*/ ctx[1]);
-    			}
-
-    			if (dirty & /*description*/ 4) {
-    				set_input_value(textarea, /*description*/ ctx[2]);
-    			}
-
-    			if (/*imageSrc*/ ctx[4]) {
-    				if (if_block) {
-    					if_block.p(ctx, dirty);
-    				} else {
-    					if_block = create_if_block(ctx);
-    					if_block.c();
-    					if_block.m(div1, null);
-    				}
-    			} else if (if_block) {
-    				if_block.d(1);
-    				if_block = null;
-    			}
-
+    		p: function update(ctx, dirty) {
     			const contactcard_changes = {};
-    			if (dirty & /*uppercaseName*/ 32) contactcard_changes.userName = /*uppercaseName*/ ctx[5];
-    			if (dirty & /*title*/ 2) contactcard_changes.title = /*title*/ ctx[1];
-    			if (dirty & /*description*/ 4) contactcard_changes.description = /*description*/ ctx[2];
-    			if (dirty & /*imageSrc*/ 16) contactcard_changes.imageSrc = /*imageSrc*/ ctx[4];
+    			if (dirty & /*createdContacts*/ 16) contactcard_changes.userName = /*contact*/ ctx[13].name;
+    			if (dirty & /*createdContacts*/ 16) contactcard_changes.jobTitle = /*contact*/ ctx[13].title;
+    			if (dirty & /*createdContacts*/ 16) contactcard_changes.userImage = /*contact*/ ctx[13].image;
+    			if (dirty & /*createdContacts*/ 16) contactcard_changes.description = /*contact*/ ctx[13].description;
     			contactcard.$set(contactcard_changes);
     		},
     		i: function intro(local) {
@@ -978,9 +790,296 @@ var app = (function () {
     			current = false;
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div2);
-    			if (if_block) if_block.d();
-    			destroy_component(contactcard);
+    			destroy_component(contactcard, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block.name,
+    		type: "each",
+    		source: "(99:4) {#each createdContacts as contact}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment(ctx) {
+    	let div7;
+    	let div5;
+    	let div4;
+    	let div0;
+    	let label0;
+    	let t1;
+    	let input0;
+    	let t2;
+    	let div1;
+    	let label1;
+    	let t4;
+    	let input1;
+    	let t5;
+    	let div2;
+    	let label2;
+    	let t7;
+    	let input2;
+    	let t8;
+    	let div3;
+    	let label3;
+    	let t10;
+    	let textarea;
+    	let t11;
+    	let button;
+    	let t13;
+    	let t14;
+    	let div6;
+    	let current;
+    	let mounted;
+    	let dispose;
+
+    	function select_block_type(ctx, dirty) {
+    		if (/*formState*/ ctx[3] === 'invalid') return create_if_block;
+    		if (/*createdContacts*/ ctx[4].length === 0) return create_if_block_1;
+    	}
+
+    	let current_block_type = select_block_type(ctx);
+    	let if_block = current_block_type && current_block_type(ctx);
+    	let each_value = /*createdContacts*/ ctx[4];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	const block = {
+    		c: function create() {
+    			div7 = element("div");
+    			div5 = element("div");
+    			div4 = element("div");
+    			div0 = element("div");
+    			label0 = element("label");
+    			label0.textContent = "User Name";
+    			t1 = space();
+    			input0 = element("input");
+    			t2 = space();
+    			div1 = element("div");
+    			label1 = element("label");
+    			label1.textContent = "Job Title";
+    			t4 = space();
+    			input1 = element("input");
+    			t5 = space();
+    			div2 = element("div");
+    			label2 = element("label");
+    			label2.textContent = "Image Upload";
+    			t7 = space();
+    			input2 = element("input");
+    			t8 = space();
+    			div3 = element("div");
+    			label3 = element("label");
+    			label3.textContent = "Description";
+    			t10 = space();
+    			textarea = element("textarea");
+    			t11 = space();
+    			button = element("button");
+    			button.textContent = "Add Contact Card";
+    			t13 = space();
+    			if (if_block) if_block.c();
+    			t14 = space();
+    			div6 = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(label0, "for", "userName");
+    			attr_dev(label0, "class", "svelte-lpjeys");
+    			add_location(label0, file, 61, 8, 1349);
+    			attr_dev(input0, "type", "text");
+    			attr_dev(input0, "id", "userName");
+    			attr_dev(input0, "class", "svelte-lpjeys");
+    			add_location(input0, file, 62, 8, 1398);
+    			attr_dev(div0, "class", "form-control svelte-lpjeys");
+    			add_location(div0, file, 60, 6, 1313);
+    			attr_dev(label1, "for", "jobTitle");
+    			attr_dev(label1, "class", "svelte-lpjeys");
+    			add_location(label1, file, 66, 8, 1511);
+    			attr_dev(input1, "type", "text");
+    			attr_dev(input1, "id", "jobTitle");
+    			attr_dev(input1, "class", "svelte-lpjeys");
+    			add_location(input1, file, 67, 8, 1560);
+    			attr_dev(div1, "class", "form-control svelte-lpjeys");
+    			add_location(div1, file, 65, 6, 1475);
+    			attr_dev(label2, "for", "imageUpload");
+    			attr_dev(label2, "class", "svelte-lpjeys");
+    			add_location(label2, file, 72, 8, 1717);
+    			attr_dev(input2, "id", "imageUpload");
+    			attr_dev(input2, "type", "file");
+    			attr_dev(input2, "accept", "image/*");
+    			attr_dev(input2, "class", "svelte-lpjeys");
+    			add_location(input2, file, 73, 8, 1772);
+    			attr_dev(div2, "class", "form-control svelte-lpjeys");
+    			add_location(div2, file, 71, 6, 1681);
+    			attr_dev(label3, "for", "desc");
+    			attr_dev(label3, "class", "svelte-lpjeys");
+    			add_location(label3, file, 83, 8, 1992);
+    			attr_dev(textarea, "rows", "3");
+    			attr_dev(textarea, "id", "desc");
+    			attr_dev(textarea, "class", "svelte-lpjeys");
+    			add_location(textarea, file, 84, 8, 2039);
+    			attr_dev(div3, "class", "form-control svelte-lpjeys");
+    			add_location(div3, file, 82, 6, 1956);
+    			attr_dev(button, "class", "primary svelte-lpjeys");
+    			add_location(button, file, 87, 6, 2128);
+    			attr_dev(div4, "id", "form");
+    			attr_dev(div4, "class", "svelte-lpjeys");
+    			add_location(div4, file, 59, 4, 1290);
+    			attr_dev(div5, "id", "form-wrapper");
+    			attr_dev(div5, "class", "svelte-lpjeys");
+    			add_location(div5, file, 58, 2, 1261);
+    			attr_dev(div6, "class", "contacts-grid svelte-lpjeys");
+    			add_location(div6, file, 97, 2, 2450);
+    			attr_dev(div7, "class", "page svelte-lpjeys");
+    			add_location(div7, file, 57, 0, 1239);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div7, anchor);
+    			append_dev(div7, div5);
+    			append_dev(div5, div4);
+    			append_dev(div4, div0);
+    			append_dev(div0, label0);
+    			append_dev(div0, t1);
+    			append_dev(div0, input0);
+    			set_input_value(input0, /*name*/ ctx[0]);
+    			append_dev(div4, t2);
+    			append_dev(div4, div1);
+    			append_dev(div1, label1);
+    			append_dev(div1, t4);
+    			append_dev(div1, input1);
+    			set_input_value(input1, /*title*/ ctx[1]);
+    			append_dev(div4, t5);
+    			append_dev(div4, div2);
+    			append_dev(div2, label2);
+    			append_dev(div2, t7);
+    			append_dev(div2, input2);
+    			append_dev(div4, t8);
+    			append_dev(div4, div3);
+    			append_dev(div3, label3);
+    			append_dev(div3, t10);
+    			append_dev(div3, textarea);
+    			set_input_value(textarea, /*description*/ ctx[2]);
+    			append_dev(div4, t11);
+    			append_dev(div4, button);
+    			append_dev(div7, t13);
+    			if (if_block) if_block.m(div7, null);
+    			append_dev(div7, t14);
+    			append_dev(div7, div6);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				if (each_blocks[i]) {
+    					each_blocks[i].m(div6, null);
+    				}
+    			}
+
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = [
+    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[8]),
+    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[9]),
+    					listen_dev(input2, "change", /*input2_change_handler*/ ctx[10]),
+    					listen_dev(input2, "change", /*handleImageChange*/ ctx[6], false, false, false, false),
+    					listen_dev(textarea, "input", /*textarea_input_handler*/ ctx[11]),
+    					listen_dev(button, "click", /*addContact*/ ctx[7], false, false, false, false)
+    				];
+
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*name*/ 1 && input0.value !== /*name*/ ctx[0]) {
+    				set_input_value(input0, /*name*/ ctx[0]);
+    			}
+
+    			if (dirty & /*title*/ 2 && input1.value !== /*title*/ ctx[1]) {
+    				set_input_value(input1, /*title*/ ctx[1]);
+    			}
+
+    			if (dirty & /*description*/ 4) {
+    				set_input_value(textarea, /*description*/ ctx[2]);
+    			}
+
+    			if (current_block_type !== (current_block_type = select_block_type(ctx))) {
+    				if (if_block) if_block.d(1);
+    				if_block = current_block_type && current_block_type(ctx);
+
+    				if (if_block) {
+    					if_block.c();
+    					if_block.m(div7, t14);
+    				}
+    			}
+
+    			if (dirty & /*createdContacts*/ 16) {
+    				each_value = /*createdContacts*/ ctx[4];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(div6, null);
+    					}
+    				}
+
+    				group_outros();
+
+    				for (i = each_value.length; i < each_blocks.length; i += 1) {
+    					out(i);
+    				}
+
+    				check_outros();
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+
+    			for (let i = 0; i < each_value.length; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div7);
+
+    			if (if_block) {
+    				if_block.d();
+    			}
+
+    			destroy_each(each_blocks, detaching);
     			mounted = false;
     			run_all(dispose);
     		}
@@ -998,35 +1097,64 @@ var app = (function () {
     }
 
     function instance($$self, $$props, $$invalidate) {
-    	let uppercaseName;
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('App', slots, []);
     	let name = 'Max';
-    	let title = 'Senior Developer';
-    	let description = 'Passionate about building fast and accessible web applications.';
-    	let age = 30;
-    	let imageSrc = ''; // data URL or object URL of the uploaded image
+    	let title = '';
+    	let image = ''; // will hold data URL from upload
+    	let description = '';
+    	let formState = 'empty';
+    	let createdContacts = [];
+    	let files; // for bind:files
 
-    	function incrementAge() {
-    		$$invalidate(3, age += 1);
-    	}
+    	function handleImageChange() {
+    		if (!files || !files[0]) {
+    			image = '';
+    			return;
+    		}
 
-    	function handleImageChange(event) {
-    		const [file] = event.target.files;
-    		if (!file) return;
+    		const file = files[0];
     		const reader = new FileReader();
 
     		reader.onload = e => {
-    			$$invalidate(4, imageSrc = e.target.result);
+    			image = e.target.result; // data URL
     		};
 
     		reader.readAsDataURL(file);
     	}
 
+    	function addContact() {
+    		if (name.trim().length == 0 || title.trim().length == 0 || image.trim().length == 0 || description.trim().length == 0) {
+    			$$invalidate(3, formState = 'invalid');
+    			return;
+    		}
+
+    		// Add to contacts array immediately
+    		$$invalidate(4, createdContacts = [
+    			...createdContacts,
+    			{
+    				id: Math.random(),
+    				name,
+    				title,
+    				image,
+    				description
+    			}
+    		]);
+
+    		// Reset form for next entry
+    		$$invalidate(0, name = '');
+
+    		$$invalidate(1, title = '');
+    		image = '';
+    		$$invalidate(2, description = '');
+    		$$invalidate(5, files = null);
+    		$$invalidate(3, formState = 'empty');
+    	}
+
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console_1.warn(`<App> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<App> was created with unknown prop '${key}'`);
     	});
 
     	function input0_input_handler() {
@@ -1039,6 +1167,11 @@ var app = (function () {
     		$$invalidate(1, title);
     	}
 
+    	function input2_change_handler() {
+    		files = this.files;
+    		$$invalidate(5, files);
+    	}
+
     	function textarea_input_handler() {
     		description = this.value;
     		$$invalidate(2, description);
@@ -1048,55 +1181,41 @@ var app = (function () {
     		ContactCard,
     		name,
     		title,
+    		image,
     		description,
-    		age,
-    		imageSrc,
-    		incrementAge,
+    		formState,
+    		createdContacts,
+    		files,
     		handleImageChange,
-    		uppercaseName
+    		addContact
     	});
 
     	$$self.$inject_state = $$props => {
     		if ('name' in $$props) $$invalidate(0, name = $$props.name);
     		if ('title' in $$props) $$invalidate(1, title = $$props.title);
+    		if ('image' in $$props) image = $$props.image;
     		if ('description' in $$props) $$invalidate(2, description = $$props.description);
-    		if ('age' in $$props) $$invalidate(3, age = $$props.age);
-    		if ('imageSrc' in $$props) $$invalidate(4, imageSrc = $$props.imageSrc);
-    		if ('uppercaseName' in $$props) $$invalidate(5, uppercaseName = $$props.uppercaseName);
+    		if ('formState' in $$props) $$invalidate(3, formState = $$props.formState);
+    		if ('createdContacts' in $$props) $$invalidate(4, createdContacts = $$props.createdContacts);
+    		if ('files' in $$props) $$invalidate(5, files = $$props.files);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	$$self.$$.update = () => {
-    		if ($$self.$$.dirty & /*name*/ 1) {
-    			$$invalidate(5, uppercaseName = name.toUpperCase());
-    		}
-
-    		if ($$self.$$.dirty & /*name*/ 1) {
-    			console.log(name);
-    		}
-
-    		if ($$self.$$.dirty & /*name*/ 1) {
-    			if (name === 'Maximilian') {
-    				console.log('It runs!');
-    				$$invalidate(3, age = 31);
-    			}
-    		}
-    	};
-
     	return [
     		name,
     		title,
     		description,
-    		age,
-    		imageSrc,
-    		uppercaseName,
-    		incrementAge,
+    		formState,
+    		createdContacts,
+    		files,
     		handleImageChange,
+    		addContact,
     		input0_input_handler,
     		input1_input_handler,
+    		input2_change_handler,
     		textarea_input_handler
     	];
     }

@@ -1,75 +1,87 @@
 <script>
   export let userName;
-  export let title;
+  export let jobTitle;
   export let description;
-  export let imageSrc = ''; // optional, default empty
+  export let userImage;
 </script>
 
-<article class="card">
-  <div class="avatar">
-    {#if imageSrc}
-      <img src={imageSrc} alt={`Avatar of ${userName}`} />
-    {:else}
-      <div class="placeholder">{userName?.[0] ?? '?'}</div>
-    {/if}
+<div class="contact-card">
+  <header>
+    <div class="thumb" class:thumb-placeholder={!userImage}>
+      <img src={userImage} alt={userName} />
+    </div>
+    <div class="user-data">
+      <h1>{userName}</h1>
+      <h2>{jobTitle}</h2>
+    </div>
+  </header>
+  <div class="description">
+    <p>{description}</p>
   </div>
-  <div class="info">
-    <h2>{userName}</h2>
-    <p class="title">{title}</p>
-    <p class="description">{description}</p>
-  </div>
-</article>
+</div>
 
 <style>
-  .card {
+  .contact-card {
+    background-color: #ebd6fb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+    max-width: 30rem;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  header {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem 1.25rem;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.04);
+    margin-bottom: 1rem;
   }
 
-  .avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 999px;
-    overflow: hidden;
-    background: #ede9fe;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .thumb {
+    width: 5rem;
+    height: 5rem;
+    flex-shrink: 0;
   }
 
-  .avatar img {
+  .thumb-placeholder {
+    background: #ccc;
+  }
+
+  img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%; /* circular image */
   }
 
-  .placeholder {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #5b21b6;
+  .user-data {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
-  .info h2 {
+  h1 {
+    font-size: 1.25rem;
+    font-family: 'Roboto Slab', sans-serif;
+    margin: 0 0 0.25rem 0;
+    color: #52357b;
+  }
+
+  h2 {
+    font-size: 1rem;
+    font-weight: normal;
+    color: #52357b;
     margin: 0;
-    font-size: 1.2rem;
-    color: #111827;
-  }
-
-  .title {
-    margin: 0.1rem 0;
-    font-size: 0.9rem;
-    color: #6b7280;
-    font-weight: 500;
   }
 
   .description {
+    border-top: 1px solid rgba(82, 53, 123, 0.2);
+    padding-top: 1rem;
+  }
+
+  p {
+    color: #52357b;
     margin: 0;
-    font-size: 0.9rem;
-    color: #4b5563;
+    line-height: 1.5;
   }
 </style>
